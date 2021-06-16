@@ -83,6 +83,7 @@
     "babel-plugin-named-asset-import": "^0.3.7",
     "babel-preset-react-app": "^10.0.0",
     "case-sensitive-paths-webpack-plugin": "2.3.0",
+    "concurrently": "^6.2.0",
     "css-loader": "4.3.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
@@ -91,6 +92,7 @@
     "eslint-plugin-flowtype": "^5.2.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.1.5",
+    "eslint-plugin-jsdoc": "^35.3.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.3.1",
@@ -129,6 +131,7 @@
   },
   "proxy": "http://localhost:5000",
   "scripts": {
+    "dev": "concurrently 'yarn server-dev' 'yarn client-dev'",
     "client-dev": "node scripts/start.js",
     "server-dev": "ts-node-dev src/server/server.ts --watch src/server/**/*.ts",
     "client-build": "node scripts/build.js",
