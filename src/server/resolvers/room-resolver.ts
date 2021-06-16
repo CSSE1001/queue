@@ -68,9 +68,6 @@ export class RoomResolver {
         return await getActiveRooms(rooms);
     }
 
-    /**
-     * Add a room that has specified weekly active time frames
-     */
     @Mutation(() => Room)
     async createRoom(
         @Arg("courseId") courseId: string,
@@ -137,9 +134,6 @@ export class RoomResolver {
         return await room.save();
     }
 
-    /**
-     * This is the main interaction with the client side
-     */
     @Query(() => Room)
     async getRoomById(@Arg("roomId") roomId: string): Promise<Room> {
         try {

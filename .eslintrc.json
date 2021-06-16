@@ -25,11 +25,12 @@
     "plugins": [
         "react",
         "@typescript-eslint",
-        "jsdoc"
+        "jsdoc",
+        "prettier"
     ],
     "rules": {
         "semi": ["warn", "always"],
-        "quotes": ["warn", "double"],
+        "prettier/prettier": ["warn", { "singleQuote": false }],
         "react/prop-types": 0,
         "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": [
