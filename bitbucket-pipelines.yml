@@ -5,35 +5,32 @@
 image: node:12
 
 pipelines:
-  default:
-    - parallel:
+  branches:
+    development:
       - step:
-          name: 'Build and Test'
+          name: "Lint, Test and Test Build"
           script:
-            - echo "Your build and test goes here..."
+            - yarn
+            - yarn build
+            - yarn eslint-check && yarn prettier-check
+            - exit(1)
+            #- yarn test
       - step:
-          name: 'Lint'
+          name: 'Deployment to Staging'
+          deployment: staging
           script:
-            - echo "Your linting goes here..."
+            - echo "Your deployment to staging script goes here..."
       - step:
-          name: 'Security scan'
+          name: 'Deployment to Production'
+          deployment: production
+          trigger: 'manual'
           script:
-            - echo "Your security scan goes here..."
-    - step:
-        name: 'Deployment to Staging'
-        deployment: staging
-        script:
-          - echo "Your deployment to staging script goes here..."
-    - step:
-        name: 'Deployment to Production'
-        deployment: production
-        trigger: 'manual'
-        script:
-          - echo "Your deployment to production script goes here..."
-    - step:
-        name: 'Slack notification'
-        script:
-          - pipe: atlassian/slack-notify:1.0.2
-            variables:
-              WEBHOOK_URL: $WEBHOOK_URL
-              MESSAGE: '"build has exited with status $build_status"'
+            - echo "Your deployment to production script goes here..."
+      - step:
+          name: 'Slack notification'
+          script:
+            - pipe: atlassian/slack-notify:1.0.2
+              variables:
+                WEBHOOK_URL: $WEBHOOK_URL
+                MESSAGE: 'Dont mind me Im just being tested'
+#                MESSAGE: '"build has exited with status $build_status"'
