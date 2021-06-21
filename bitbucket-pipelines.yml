@@ -13,8 +13,7 @@ pipelines:
             - yarn
             - yarn build
             - yarn eslint-check && yarn prettier-check
-            - exit(1)
-            #- yarn test
+            - yarn test
       - step:
           name: 'Deployment to Staging'
           deployment: staging
@@ -25,12 +24,20 @@ pipelines:
           deployment: production
           trigger: 'manual'
           script:
-            - echo "Your deployment to production script goes here..."
-      - step:
-          name: 'Slack notification'
-          script:
-            - pipe: atlassian/slack-notify:1.0.2
-              variables:
-                WEBHOOK_URL: $WEBHOOK_URL
-                MESSAGE: 'Dont mind me Im just being tested'
-#                MESSAGE: '"build has exited with status $build_status"'
+            - SSH_PATH="$HOME/.ssh" && mkdir -p "$SSH_PATH" && touch "$SSH_PATH/known_hosts"
+            - echo "$PRIVATE_KEY" > "$SSH_PATH/deploy_key"
+            - chmod 700 "$SSH_PATH" && chmod 600 "$SSH_PATH/known_hosts" "$SSH_PATH/deploy_key"
+            - eval $(ssh-agent)
+            - printf '%s\n' 'Host *.eait.uq.edu.au' '  StrictHostKeyChecking no' 'Host *.zones.eait.uq.edu.au' '  ProxyJump ${{ secrets.USER }}@moss.labs.eait.uq.edu.au' > "$SSH_PATH/config"
+            - ssh-add "$SSH_PATH/deploy_key"
+            - >-
+              ssh -i "$SSH_PATH/deploy_key" "$USER@$HOST"
+              "cd /var/www/nodejs/queue &&
+              git reset HEAD --hard &&
+              git checkout main &&
+              git pull && yarn &&
+              rm -rf build &&
+              yarn build &&
+              yarn migration-run &&
+              echo "$PW" | sudo -S systemctl restart nodejs &&
+              history -c"
