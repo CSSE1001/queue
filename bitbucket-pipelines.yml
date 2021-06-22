@@ -17,7 +17,6 @@ pipelines:
             - echo "Your deployment to staging script goes here..."
       - step:
           name: 'Push changes back to github'
-          deployment: production
           script:
             # Note: I know that this is repetitive, but YAML doesn't have anyway to reduce
             # the duplicated code :( https://github.com/yaml/yaml/issues/35
