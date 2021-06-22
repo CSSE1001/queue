@@ -6,9 +6,9 @@ pipelines:
       - step:
           name: "Lint, Test and Test Build"
           script:
-#            - yarn
-#            - yarn build
-#            - yarn eslint-check && yarn prettier-check
+            - yarn
+            - yarn build
+            - yarn eslint-check && yarn prettier-check
             - yarn test
       - step:
           name: 'Push changes back to github'
