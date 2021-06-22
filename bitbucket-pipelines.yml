@@ -6,14 +6,14 @@ image: node:12
 
 pipelines:
   branches:
-    development:
+    development-test:
       - step:
           name: "Lint, Test and Test Build"
           script:
-            - yarn
-            - yarn build
-            - yarn eslint-check && yarn prettier-check
-            - yarn test
+#            - yarn
+#            - yarn build
+#            - yarn eslint-check && yarn prettier-check
+#            - yarn test
       - step:
           name: 'Deployment to Staging'
           deployment: staging
@@ -25,8 +25,8 @@ pipelines:
           trigger: 'manual'
           script:
             - SSH_PATH="$HOME/.ssh" && mkdir -p "$SSH_PATH" && touch "$SSH_PATH/known_hosts"
-            - echo "$PRIVATE_KEY" > "$SSH_PATH/deploy_key"
-            - echo $PRIVATE_KEY
+            - echo "$PRIVATE_KEY_B64" | base64 --decode > "$SSH_PATH/deploy_key"
+#            - echo $PRIVATE_KEY
             - chmod 700 "$SSH_PATH" && chmod 600 "$SSH_PATH/known_hosts" "$SSH_PATH/deploy_key"
             - eval $(ssh-agent)
             - printf '%s\n' 'Host *.eait.uq.edu.au' '  StrictHostKeyChecking no' 'Host *.zones.eait.uq.edu.au' "  ProxyJump $USER@moss.labs.eait.uq.edu.au" > "$SSH_PATH/config"
