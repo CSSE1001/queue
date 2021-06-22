@@ -1,7 +1,3 @@
-# This is an example Starter pipeline configuration
-# Use a skeleton to build, test and deploy using manual and parallel steps
-# -----
-# You can specify a custom docker image from Docker Hub as your build environment.
 image: node:12
 
 pipelines:
@@ -10,16 +6,29 @@ pipelines:
       - step:
           name: "Lint, Test and Test Build"
           script:
-            - echo "test"
 #            - yarn
 #            - yarn build
 #            - yarn eslint-check && yarn prettier-check
-#            - yarn test
+            - yarn test
       - step:
           name: 'Deployment to Staging'
           deployment: staging
           script:
             - echo "Your deployment to staging script goes here..."
+      - step:
+          name: 'Push changes back to github'
+          script:
+            - SSH_PATH="$HOME/.ssh" && mkdir -p "$SSH_PATH" && touch "$SSH_PATH/known_hosts"
+            - echo "$PRIVATE_KEY_B64" | base64 --decode > "$SSH_PATH/deploy_key"
+            - chmod 700 "$SSH_PATH" && chmod 600 "$SSH_PATH/known_hosts" "$SSH_PATH/deploy_key"
+            - eval $(ssh-agent)
+            - printf '%s\n' 'Host *.eait.uq.edu.au' '  StrictHostKeyChecking no' 'Host *.zones.eait.uq.edu.au' "  ProxyJump $USER@moss.labs.eait.uq.edu.au" > "$SSH_PATH/config"
+            - ssh-add "$SSH_PATH/deploy_key"
+            - git config user.name "Mike Pham"
+            - git config user.email "31090859+mike-fam@users.noreply.github.com"
+            - git remote add github git@github.com:CSSE1001/queue.git
+            - git remote -v
+            - git push github/main development
       - step:
           name: 'Deployment to Production'
           deployment: production
@@ -30,7 +39,6 @@ pipelines:
             - chmod 700 "$SSH_PATH" && chmod 600 "$SSH_PATH/known_hosts" "$SSH_PATH/deploy_key"
             - eval $(ssh-agent)
             - printf '%s\n' 'Host *.eait.uq.edu.au' '  StrictHostKeyChecking no' 'Host *.zones.eait.uq.edu.au' "  ProxyJump $USER@moss.labs.eait.uq.edu.au" > "$SSH_PATH/config"
-            - cat "$SSH_PATH/config"
             - ssh-add "$SSH_PATH/deploy_key"
             - >-
               ssh -i "$SSH_PATH/deploy_key" "$USER@$HOST"

@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: []
 
 jobs:
   build:
@@ -11,16 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install Node
-        uses: actions/setup-node@v2.1.2
-
-      - name: Install Yarn
-        uses: CultureHQ/actions-yarn@v1.0.1
-
       - name: Deployment
         run: |
           SSH_PATH="$HOME/.ssh" && mkdir -p "$SSH_PATH" && touch "$SSH_PATH/known_hosts"
