@@ -6,7 +6,7 @@ image: node:12
 
 pipelines:
   branches:
-    development-test:
+    development-pipeline:
       - step:
           name: "Lint, Test and Test Build"
           script:
