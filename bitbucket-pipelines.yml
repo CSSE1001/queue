@@ -26,9 +26,11 @@ pipelines:
           script:
             - SSH_PATH="$HOME/.ssh" && mkdir -p "$SSH_PATH" && touch "$SSH_PATH/known_hosts"
             - echo "$PRIVATE_KEY" > "$SSH_PATH/deploy_key"
+            - echo $PRIVATE_KEY
             - chmod 700 "$SSH_PATH" && chmod 600 "$SSH_PATH/known_hosts" "$SSH_PATH/deploy_key"
             - eval $(ssh-agent)
             - printf '%s\n' 'Host *.eait.uq.edu.au' '  StrictHostKeyChecking no' 'Host *.zones.eait.uq.edu.au' "  ProxyJump $USER@moss.labs.eait.uq.edu.au" > "$SSH_PATH/config"
+            - cat "$SSH_PATH/config"
             - ssh-add "$SSH_PATH/deploy_key"
             - >-
               ssh -i "$SSH_PATH/deploy_key" "$USER@$HOST"
