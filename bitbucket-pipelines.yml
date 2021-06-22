@@ -10,11 +10,10 @@ pipelines:
       - step:
           name: "Lint, Test and Test Build"
           script:
-            - echo "test"
-#            - yarn
-#            - yarn build
-#            - yarn eslint-check && yarn prettier-check
-#            - yarn test
+            - yarn
+            - yarn build
+            - yarn eslint-check && yarn prettier-check
+            - yarn test
       - step:
           name: 'Deployment to Staging'
           deployment: staging
