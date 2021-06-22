@@ -11,11 +11,6 @@ pipelines:
 #            - yarn eslint-check && yarn prettier-check
             - yarn test
       - step:
-          name: 'Deployment to Staging'
-          deployment: staging
-          script:
-            - echo "Your deployment to staging script goes here..."
-      - step:
           name: 'Push changes back to github'
           script:
             # Note: I know that this is repetitive, but YAML doesn't have anyway to reduce
@@ -31,6 +26,11 @@ pipelines:
             - git remote add github git@github.com:CSSE1001/queue.git
             - git remote -v
             - git push github/main development
+      - step:
+          name: 'Deployment to Staging'
+          deployment: staging
+          script:
+            - echo "Your deployment to staging script goes here..."
       - step:
           name: 'Deployment to Production'
           deployment: production
