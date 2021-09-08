@@ -39,6 +39,10 @@ export const HomePageContainer: React.FC<Props> = () => {
                                 history.push(`/${course.toUpperCase()}`);
                             }
                         }}
+                        autoFocus
+                        _placeholder={{
+                            color: "#555",
+                        }}
                     />
                 </InputGroup>
             </Stack>
