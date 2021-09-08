@@ -39,7 +39,7 @@ pipelines:
           script:
             - git config user.name "Mike Pham"
             - git config user.email "31090859+mike-fam@users.noreply.github.com"
-            - git remote add github git@github.com:mike-fam/tutor-timetable-v2.git
+            - git remote add github git@github.com:CSSE1001/queue.git
             - git push github development:main
       - step:
           name: 'Deployment to Production'
