@@ -1,6 +1,13 @@
 image: node:14
 
 definitions:
+#  services:
+#    postgres-test:
+#      image: postgres:13
+#      variables:
+#        POSTGRES_USER: postgres
+#        POSTGRES_PASSWORD: postgres
+#        POSTGRES_DB: tutor-timetable-v2-test
   steps:
     - step: &build-test
         name: Lint, Test and Test Build
@@ -8,8 +15,9 @@ definitions:
           - yarn
           - yarn eslint-check && yarn prettier-check
           - yarn build
-        services:
-          - postgres-test
+#          - cp .env.example .env && yarn test
+#        services:
+#          - postgres-test
 
 pipelines:
   pull-requests:
