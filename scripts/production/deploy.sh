@@ -19,15 +19,15 @@ NODE_ENV=production"
 
 cloneAndDeploy() {
 	cd /var/www/nodejs/
-#	rm -rf queue
-	GIT_SSH_COMMAND='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' git clone "$BITBUCKET_GIT_SSH_ORIGIN" queue2
-#	cd queue
-#	echo "$ENV_FILE" > .env
-#	yarn
-#	yarn build
-#	yarn migration-run
-#	echo "$UQ_PW" | sudo -S systemctl restart nodejs
-#	history -c
+	rm -rf queue
+	GIT_SSH_COMMAND='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' git clone "$BITBUCKET_GIT_SSH_ORIGIN" queue
+	cd queue
+	echo "$ENV_FILE" > .env
+	yarn
+	yarn build
+	yarn migration-run
+	echo "$UQ_PW" | sudo -S systemctl restart nodejs
+	history -c
 }
 
 echo "$SSH_CONFIG" >>~/.ssh/config
