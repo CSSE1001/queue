@@ -30,15 +30,17 @@ cloneAndDeploy() {
 #	history -c
 }
 
-git clone "$BITBUCKET_GIT_SSH_ORIGIN" queue
 
 echo "$SSH_CONFIG" >>~/.ssh/config
 eval "$(ssh-agent -s)"
 ssh-add /opt/atlassian/pipelines/agent/ssh/id_rsa
 
+git clone "$BITBUCKET_GIT_SSH_ORIGIN" queue
+
 # shellcheck disable=SC2029
 ssh "$UQ_USERNAME@$PRODUCTION_ZONE" "
 	set -ex
+	ssh-add -L
 	$(declare -f cloneAndDeploy)
 	$(declare -p UQ_PW BITBUCKET_GIT_SSH_ORIGIN ENV_FILE)
 	cloneAndDeploy
