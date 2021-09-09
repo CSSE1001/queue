@@ -20,7 +20,7 @@ NODE_ENV=production"
 cloneAndDeploy() {
 	cd /var/www/nodejs/
 #	rm -rf queue
-	git clone "$BITBUCKET_GIT_SSH_ORIGIN" queue2
+	GIT_SSH_COMMAND='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' git clone "$BITBUCKET_GIT_SSH_ORIGIN" queue2
 #	cd queue
 #	echo "$ENV_FILE" > .env
 #	yarn
@@ -30,17 +30,13 @@ cloneAndDeploy() {
 #	history -c
 }
 
-
 echo "$SSH_CONFIG" >>~/.ssh/config
 eval "$(ssh-agent -s)"
 ssh-add /opt/atlassian/pipelines/agent/ssh/id_rsa
 
-git clone "$BITBUCKET_GIT_SSH_ORIGIN" queue
-
 # shellcheck disable=SC2029
 ssh "$UQ_USERNAME@$PRODUCTION_ZONE" "
 	set -ex
-	ssh-add -L
 	$(declare -f cloneAndDeploy)
 	$(declare -p UQ_PW BITBUCKET_GIT_SSH_ORIGIN ENV_FILE)
 	cloneAndDeploy
