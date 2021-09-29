@@ -118,3 +118,4 @@ dist
 .pnp.*
 
 src/server/migrations/*
+src/client/generated/graphql.tsx
