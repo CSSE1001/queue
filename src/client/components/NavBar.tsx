@@ -75,6 +75,13 @@ export const NavBar: React.FunctionComponent<Props> = () => {
                                         </MenuItem>
                                     </>
                                 )}
+                                {user.isAdmin && (
+                                    <MenuItem>
+                                        <RouterLink to="/courses">
+                                            Courses
+                                        </RouterLink>
+                                    </MenuItem>
+                                )}
                             </MenuList>
                         </Menu>
                     )}

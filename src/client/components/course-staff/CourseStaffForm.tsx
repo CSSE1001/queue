@@ -5,18 +5,10 @@ import { FormikSelect } from "../helpers/FormikSelect";
 import { Textarea } from "@chakra-ui/react";
 
 type Props = {
-    usernames?: string;
-    role?: StaffRole;
-    onSubmit: (values: { usernames: string[]; role: StaffRole }) => void;
     editable?: boolean;
 };
 
-export const CourseStaffForm: React.FC<Props> = ({
-    usernames = "",
-    role = StaffRole.Staff,
-    onSubmit,
-    editable = false,
-}) => {
+export const CourseStaffForm: React.FC<Props> = ({ editable = false }) => {
     return (
         <>
             <FormikInput

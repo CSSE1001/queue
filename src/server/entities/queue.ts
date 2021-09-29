@@ -57,7 +57,10 @@ export class Queue extends BaseEntity {
     actions: QueueAction[];
 
     @Field(() => Room)
-    @ManyToOne(() => Room, (room) => room.queues, { lazy: true })
+    @ManyToOne(() => Room, (room) => room.queues, {
+        lazy: true,
+        onDelete: "CASCADE",
+    })
     room: Lazy<Room>;
 
     @Column()

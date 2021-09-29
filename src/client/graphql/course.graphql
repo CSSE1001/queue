@@ -3,5 +3,19 @@ query GetCourses {
         code
         id
         title
+        alias
     }
+}
+
+mutation AddCourse($courseInput: CourseInput!) {
+    createCourse(courseInput: $courseInput) {
+        code
+        id
+        title
+        alias
+    }
+}
+
+mutation DeleteCourse($courseId: String!) {
+    deleteCourse(courseId: $courseId)
 }

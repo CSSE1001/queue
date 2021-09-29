@@ -32,7 +32,10 @@ export class CourseStaff extends BaseEntity {
     user: Lazy<User>;
 
     @Field(() => Course)
-    @ManyToOne(() => Course, (user) => user.courseStaff, { lazy: true })
+    @ManyToOne(() => Course, (user) => user.courseStaff, {
+        lazy: true,
+        onDelete: "CASCADE",
+    })
     course: Lazy<Course>;
 
     @Column()

@@ -1,43 +1,45 @@
 {
-    "env": {
-        "browser": true,
-        "es2021": true,
-        "node": true
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "react-app",
+    "prettier",
+    "plugin:jsdoc/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "ignorePatterns": [
+    "config/**",
+    "node_modules"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
     },
-    "extends": [
-        "eslint:recommended",
-        "react-app",
-        "prettier",
-        "prettier/@typescript-eslint",
-        "prettier/react",
-        "prettier/standard",
-        "plugin:jsdoc/recommended"
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "jsdoc",
+    "prettier"
+  ],
+  "rules": {
+    "semi": [
+      "warn",
+      "always"
     ],
-    "parser": "@typescript-eslint/parser",
-    "ignorePatterns": ["config/**", "node_modules"],
-    "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "ecmaVersion": 12,
-        "sourceType": "module"
-    },
-    "plugins": [
-        "react",
-        "@typescript-eslint",
-        "jsdoc",
-        "prettier"
+    "react/prop-types": 0,
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn"
     ],
-    "rules": {
-        "semi": ["warn", "always"],
-        "prettier/prettier": ["warn", { "singleQuote": false }],
-        "react/prop-types": 0,
-        "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": [
-            "warn"
-        ],
-        "no-unused-expressions": "warn",
-        "react-hooks/rules-of-hooks": "error",
-        "react-hooks/exhaustive-deps": "warn"
-    }
+    "no-unused-expressions": "warn",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  }
 }

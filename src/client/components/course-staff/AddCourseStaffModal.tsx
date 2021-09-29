@@ -48,19 +48,14 @@ export const AddCourseStaffModal: React.FC<Props> = ({
                         <ModalHeader>Add Course Staff</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody>
-                            <CourseStaffForm
-                                onSubmit={onSubmit}
-                                editable={true}
-                            />
+                            <CourseStaffForm editable={true} />
                         </ModalBody>
 
                         <ModalFooter>
-                            <Button variant="ghost" onClick={onClose}>
-                                Cancel
-                            </Button>
+                            <Button onClick={onClose}>Cancel</Button>
                             <Button
                                 colorScheme="blue"
-                                mr={3}
+                                ml={3}
                                 type="submit"
                                 isLoading={loading}
                             >

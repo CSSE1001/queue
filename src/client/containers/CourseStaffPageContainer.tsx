@@ -22,7 +22,7 @@ import { Map } from "immutable";
 import { CourseStaffResponseType } from "../types/course-staff";
 import { Loadable } from "../components/helpers/Loadable";
 import { AddCourseStaffModal } from "../components/course-staff/AddCourseStaffModal";
-import { CourseStaffTableContainer } from "./CourseStaffTableContainer";
+import { CourseStaffTable } from "../components/course-staff/CourseStaffTable";
 import { CourseSelectContainer } from "./CourseSelectContainer";
 
 type Props = {};
@@ -136,7 +136,7 @@ export const CourseStaffPageContainer: React.FC<Props> = () => {
                 {courseId !== "" && (
                     <Loadable isLoading={!getCourseStaffData}>
                         <Box h="80vh" overflow="auto">
-                            <CourseStaffTableContainer
+                            <CourseStaffTable
                                 courseId={courseId}
                                 courseStaffs={courseStaff.valueSeq().toArray()}
                                 removeCourseStaff={removeCourseStaff}

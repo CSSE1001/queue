@@ -9,6 +9,7 @@ import { RoomPageContainer } from "./containers/RoomPageContainer";
 import { CourseStaffPageContainer } from "./containers/CourseStaffPageContainer";
 import { StaffRole } from "./generated/graphql";
 import { StudentEnrolmentPageContainer } from "./containers/StudentEnrolmentPageContainer";
+import { CourseAdminPageContainer } from "./containers/CourseAdminPageContainer";
 
 export const AppRouter: React.FunctionComponent<{}> = () => {
     return (
@@ -36,6 +37,12 @@ export const AppRouter: React.FunctionComponent<{}> = () => {
                     path="/student-enrolment"
                     component={StudentEnrolmentPageContainer}
                     allowedRoles={[StaffRole.Coordinator]}
+                    exact
+                />
+                <SecretRoute
+                    path="/courses"
+                    component={CourseAdminPageContainer}
+                    allowedRoles={[]}
                     exact
                 />
                 <Route path="/:courseCode">

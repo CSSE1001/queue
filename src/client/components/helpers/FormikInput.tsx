@@ -1,6 +1,7 @@
 import React from "react";
 import { Field, FieldInputProps, FieldProps } from "formik";
 import {
+    Box,
     FormControl,
     FormErrorMessage,
     FormHelperText,
@@ -34,7 +35,14 @@ export const FormikInput: React.FC<Props> = ({
                     isInvalid={!!form.errors[name] && !!form.touched[name]}
                     mt={3}
                 >
-                    <FormLabel>{label || capitalCase(name)}</FormLabel>
+                    <FormLabel>
+                        {label || capitalCase(name)}
+                        {props.isRequired && (
+                            <Box color="red" as="span">
+                                *
+                            </Box>
+                        )}
+                    </FormLabel>
                     <Input {...props} {...field} type={type} />
                     {meta.touched && meta.error && (
                         <FormErrorMessage>{meta.error}</FormErrorMessage>

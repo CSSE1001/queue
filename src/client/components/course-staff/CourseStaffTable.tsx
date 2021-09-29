@@ -4,9 +4,9 @@ import { BsX } from "react-icons/bs";
 import { Icon } from "@chakra-ui/icons";
 import { capitalCase } from "change-case";
 import sortBy from "lodash/sortBy";
-import { HelpIcon } from "../components/helpers/HelpIcon";
-import { redacted } from "../../constants";
-import { CourseStaffResponseType } from "../types/course-staff";
+import { HelpIcon } from "../helpers/HelpIcon";
+import { redacted } from "../../../constants";
+import { CourseStaffResponseType } from "../../types/course-staff";
 
 type Props = {
     courseId: string;
@@ -14,7 +14,7 @@ type Props = {
     removeCourseStaff: (courseStaffId: string) => void;
 };
 
-export const CourseStaffTableContainer: React.FC<Props> = ({
+export const CourseStaffTable: React.FC<Props> = ({
     courseId,
     removeCourseStaff,
     courseStaffs,

@@ -18,13 +18,17 @@ class CourseInput {
 
     @Field()
     title: string;
+
+    @Field({ nullable: true })
+    alias?: string;
 }
 
 @Resolver()
 export class CourseResolver {
     @Mutation(() => Course)
     async createCourse(
-        @Arg("courseInput", () => CourseInput) { code, title }: CourseInput,
+        @Arg("courseInput", () => CourseInput)
+        { code, title, alias }: CourseInput,
         @Ctx() { req }: MyContext
     ): Promise<Course> {
         if (!req.user.isAdmin) {
@@ -32,11 +36,27 @@ export class CourseResolver {
         }
         let course: Course;
         try {
-            course = await Course.create({ code, title }).save();
+            course = await Course.create({ code, title, alias }).save();
         } catch (e) {
             throw new Error("Cannot create course");
         }
         return course;
+    }
+
+    @Mutation(() => String)
+    async deleteCourse(
+        @Arg("courseId", () => String) courseId: string,
+        @Ctx() { req }: MyContext
+    ): Promise<string> {
+        if (!req.user.isAdmin) {
+            throw new Error(permissionDeniedMsg);
+        }
+        try {
+            await Course.delete(courseId);
+        } catch (e) {
+            throw new Error("Cannot create course");
+        }
+        return courseId;
     }
 
     @Query(() => [Course])
