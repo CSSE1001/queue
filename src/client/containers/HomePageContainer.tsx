@@ -4,11 +4,15 @@ import {
     Input,
     InputGroup,
     InputLeftElement,
+    Link,
     Stack,
     Text,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { UserContext } from "../utils/user";
+import { courseRequestMailto } from "../utils/course-request";
+import { NAVBAR_REAL_HEIGHT } from "../constants";
 
 type Props = {};
 
@@ -18,8 +22,9 @@ export const HomePageContainer: React.FC<Props> = () => {
     useEffect(() => {
         document.title = "Q";
     }, []);
+    const { name, username } = useContext(UserContext)!;
     return (
-        <Box h="90vh">
+        <Box h={`calc(100vh - ${NAVBAR_REAL_HEIGHT}px)`}>
             <Stack h="100%" justifyContent="center" alignItems="center">
                 <Text fontSize="10em" fontFamily="'Courier New', monospace">
                     Q
@@ -45,6 +50,22 @@ export const HomePageContainer: React.FC<Props> = () => {
                         }}
                     />
                 </InputGroup>
+                {username.startsWith("uq") && (
+                    <Text pt={6}>
+                        Want to use the queue in your course?{" "}
+                        <Link
+                            onClick={(e) => {
+                                e.preventDefault();
+                                document.location.href = courseRequestMailto(
+                                    name
+                                );
+                            }}
+                            color="teal"
+                        >
+                            Request Queue Access
+                        </Link>
+                    </Text>
+                )}
             </Stack>
         </Box>
     );
