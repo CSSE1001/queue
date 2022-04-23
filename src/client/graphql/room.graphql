@@ -2,6 +2,7 @@ query GetActiveRooms($courseCode: String!) {
     getActiveRooms(courseCode: $courseCode) {
         id
         name
+        isActive
     }
 }
 

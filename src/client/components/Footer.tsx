@@ -25,26 +25,18 @@ export const Footer: React.FunctionComponent<Props> = () => {
             <Box w="100%" bgColor={bgColor} color="gray.500" fontSize={15}>
                 <VStack h={FOOTER_HEIGHT} py={4} spacing={0}>
                     <Box>
-                        Made with <Icon as={FaHeart} color="red.500" /> by MP
+                        Made with <Icon as={FaHeart} color="red.500" /> by the CSSE1001 team.
                     </Box>
                     <HStack divider={<StackDivider />}>
                         <Link
-                            onClick={(event) => {
-                                event.preventDefault();
-                                document.location.href = bugReportMailTo(
-                                    user.name
-                                );
-                            }}
+                            href="https://github.com/CSSE1001/queue/issues/new?assignees=&labels=&template=bug_report.md&title="
+                            isExternal
                         >
                             Bug report
                         </Link>
                         <Link
-                            onClick={(event) => {
-                                event.preventDefault();
-                                document.location.href = featureRequestMailto(
-                                    user.name
-                                );
-                            }}
+                            href="https://github.com/CSSE1001/queue/issues/new?assignees=&labels=&template=feature_request.md&title="
+                            isExternal
                         >
                             Feature request
                         </Link>

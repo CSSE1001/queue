@@ -15,7 +15,7 @@ import { MyContext } from "../types/context";
 import { getRepository } from "typeorm";
 import { QuestionEvent, QuestionStatus } from "../types/question";
 import { permissionDeniedMsg } from "../../constants";
-import { getActiveRooms } from "../utils/rooms";
+import asyncFilter from "node-filter-async";
 
 @Resolver(() => Question)
 export class QuestionResolver {
@@ -34,7 +34,10 @@ export class QuestionResolver {
         // Disallow joining multiple queues of same course
         const course = await (await queue.room).course;
         // TODO: Check if student is enrolled in course
-        const rooms = await getActiveRooms(await course.rooms);
+        const rooms = await asyncFilter(
+            await course.rooms,
+            async (room) => await room.isActive()
+        );
         const existingQueues = await getRepository(Queue)
             .createQueryBuilder("queue")
             .innerJoinAndSelect("queue.room", "room")

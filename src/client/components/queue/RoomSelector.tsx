@@ -4,7 +4,7 @@ import { Flex, FormLabel, Select } from "@chakra-ui/react";
 type Props = {
     selected: string;
     onSelect: (roomId: string) => void;
-    rooms: [roomId: string, roomName: string][];
+    rooms: [roomId: string, roomName: string, isActive: boolean][];
 };
 
 export const RoomSelector: React.FC<Props> = ({
@@ -25,9 +25,9 @@ export const RoomSelector: React.FC<Props> = ({
                 <option value="default" disabled>
                     Choose an option
                 </option>
-                {rooms.map(([roomId, roomName]) => (
+                {rooms.map(([roomId, roomName, isActive]) => (
                     <option key={roomId} value={roomId}>
-                        {roomName}
+                        {roomName} {!isActive && "(currently inactive)"}
                     </option>
                 ))}
             </Select>

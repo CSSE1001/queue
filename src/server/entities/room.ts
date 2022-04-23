@@ -11,6 +11,7 @@ import { Lazy } from "../types/query";
 import { WeeklyEvent } from "./weekly-event";
 import { Course } from "./course";
 import { Field, Int, ObjectType } from "type-graphql";
+import getIsoDay from "date-fns/getISODay";
 
 @ObjectType()
 @Entity()
@@ -55,4 +56,25 @@ export class Room extends BaseEntity {
 
     @Column()
     courseId: string;
+
+    @Field(() => Boolean)
+    async isActive(): Promise<boolean> {
+        const today = new Date();
+        if (this.manuallyDisabled) {
+            return false;
+        }
+        const events = await this.activeTimes;
+        return events.some((event) => {
+            const currentDay = getIsoDay(today);
+            const currentTime =
+                today.getHours() +
+                today.getMinutes() / 60 +
+                today.getSeconds() / 3600;
+            return (
+                event.day === currentDay &&
+                event.startTime < currentTime &&
+                currentTime < event.endTime
+            );
+        });
+    }
 }

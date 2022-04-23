@@ -30,6 +30,10 @@ import {
     useUpdateQueueMutation,
 } from "../generated/graphql";
 import {
+    Alert,
+    AlertDescription,
+    AlertIcon,
+    AlertTitle,
     Button,
     Flex,
     FormControl,
@@ -93,9 +97,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
     const [selectedQuestion, setSelectedQuestion] = useState("");
     const { courseCode } = useParams<CourseParam>();
     const history = useHistory();
-    const [queueQuestions, setQueueQuestions] = useState<
-        Map<string, { [key: string]: QuestionProps }>
-    >(Map());
+    const [queueQuestions, setQueueQuestions] = useState<Map<string, { [key: string]: QuestionProps }>>(Map());
     const toast = useToast();
     const {
         data: activeRoomsData,
@@ -114,7 +116,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
             errorPolicy: "all",
             pollInterval: 30000,
             fetchPolicy: "cache-and-network",
-        }
+        },
     );
     const [
         updateQueue,
@@ -126,7 +128,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
             variables: {
                 roomId: roomData?.getRoomById.id || "",
             },
-        }
+        },
     );
     const [
         askQuestionMutation,
@@ -164,7 +166,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                 variables: { queueId },
             });
         },
-        [askQuestionMutation]
+        [askQuestionMutation],
     );
     const editQueue = useCallback(
         (queueId: string) => {
@@ -172,7 +174,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
             setAddingNewQueue(false);
             openQueueModal();
         },
-        [openQueueModal]
+        [openQueueModal],
     );
     const user = useContext(UserContext)!;
     const updateQueues = useCallback(
@@ -189,10 +191,10 @@ export const CoursePageContainer: React.FC<Props> = () => {
                     clearAfterMidnight: queue.clearAfterMidnight,
                     showEnrolledSession: queue.showEnrolledSession,
                     createdAt: parseISO(queue.createdAt),
-                })
+                }),
             );
         },
-        []
+        [],
     );
     const isStaff = useMemo(() => {
         if (!user) {
@@ -202,7 +204,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
             return true;
         }
         return user.getCourseStaff.some(
-            (courseStaff) => courseStaff.course.code === courseCode
+            (courseStaff) => courseStaff.course.code === courseCode,
         );
     }, [user, courseCode]);
 
@@ -210,14 +212,14 @@ export const CoursePageContainer: React.FC<Props> = () => {
         (question: UpdateQuestionStatusMutation["updateQuestionStatus"]) => {
             if (
                 [QuestionStatus.Closed, QuestionStatus.Accepted].includes(
-                    question.status
+                    question.status,
                 )
             ) {
                 setQueueQuestions((prev) =>
                     prev.set(
                         question.queue.id,
-                        omit(prev.get(question.queue.id) || {}, question.id)
-                    )
+                        omit(prev.get(question.queue.id) || {}, question.id),
+                    ),
                 );
                 return;
             }
@@ -238,10 +240,10 @@ export const CoursePageContainer: React.FC<Props> = () => {
                         claimer: question.claimer,
                         enrolledSession: question.enrolledIn,
                     },
-                })
+                }),
             );
         },
-        []
+        [],
     );
 
     useEffect(() => {
@@ -272,14 +274,14 @@ export const CoursePageContainer: React.FC<Props> = () => {
                                 claimer: question.claimer,
                             },
                         }),
-                        {}
-                    )
-                )
+                        {},
+                    ),
+                ),
             );
             updateQueues(queue);
         });
         setDisplayedQueues(
-            roomData.getRoomById.queues.map((queue) => queue.id)
+            roomData.getRoomById.queues.map((queue) => queue.id),
         );
     }, [roomData, courseCode, updateQueues]);
 
@@ -295,7 +297,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
         ) {
             pushNotification(
                 "Question Claimed",
-                updatedQuestion.claimMessage || "Your question has been claimed"
+                updatedQuestion.claimMessage || "Your question has been claimed",
             );
             toast({
                 title: "Question Claimed",
@@ -331,7 +333,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
         }
         const removedId = removeQueueData.removeQueue;
         setDisplayedQueues((prev) =>
-            prev.filter((queueId) => queueId !== removedId)
+            prev.filter((queueId) => queueId !== removedId),
         );
         setQueues((prev) => prev.remove(removedId));
     }, [removeQueueData]);
@@ -340,7 +342,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
         (
             questionId: string,
             questionStatus: QuestionStatus,
-            message?: string
+            message?: string,
         ) => {
             updateQuestionMutation({
                 variables: {
@@ -350,7 +352,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                 },
             });
         },
-        [updateQuestionMutation]
+        [updateQuestionMutation],
     );
     useEffect(() => {
         if (!updateQuestionData) {
@@ -426,6 +428,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                             activeRoomsData?.getActiveRooms.map((room) => [
                                 room.id,
                                 room.name,
+                                room.isActive,
                             ]) || []
                         }
                     />
@@ -459,6 +462,37 @@ export const CoursePageContainer: React.FC<Props> = () => {
                         />
                     </FormControl>
                 )}
+                {displayedQueues.length === 0 && chosenRoomId !== "default" && (
+                    <Alert
+                        status="info"
+                        variant="subtle"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="center"
+                        textAlign="center"
+                        height="200px"
+                        mt={10}
+                        w="80%"
+                        mx="auto"
+                        borderRadius={5}
+                    >
+                        <AlertIcon boxSize="40px" mr={0} />
+                        <AlertTitle mt={4} mb={1} fontSize="lg">
+                            No queues found!
+                        </AlertTitle>
+                        <AlertDescription maxWidth="sm">
+                            It seems like this room doesn't have a queue yet. <br />
+                            {isStaff ? (
+                                <>
+                                    Click on the <strong>Add new queue</strong>{" "}
+                                    button to create your first queue.
+                                </>
+                            ) : (
+                                "Please contact the course staff if you think this is unexpected."
+                            )}
+                        </AlertDescription>
+                    </Alert>
+                )}
                 <Flex
                     wrap="wrap"
                     mt={6}
@@ -472,7 +506,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                             key={queueId}
                             {...(queues.get(queueId) || placeholderQueue)}
                             questions={Object.values(
-                                queueQuestions.get(queueId) || {}
+                                queueQuestions.get(queueId) || {},
                             )}
                             sessionFilter={sessionFilter}
                             askQuestion={askQuestion}
@@ -498,16 +532,16 @@ export const CoursePageContainer: React.FC<Props> = () => {
                     : queues.get(chosenQueueId) || placeholderQueue)}
                 close={closeQueueModal}
                 onSubmit={({
-                    id,
-                    name,
-                    shortDescription,
-                    actions,
-                    sortType,
-                    examples,
-                    clearAfterMidnight,
-                    theme,
-                    showEnrolledSession,
-                }) => {
+                               id,
+                               name,
+                               shortDescription,
+                               actions,
+                               sortType,
+                               examples,
+                               clearAfterMidnight,
+                               theme,
+                               showEnrolledSession,
+                           }) => {
                     if (addingNewQueue) {
                         createQueueMutation({
                             variables: {
@@ -549,13 +583,13 @@ export const CoursePageContainer: React.FC<Props> = () => {
                     addingNewQueue
                         ? undefined
                         : async (queueId) => {
-                              await removeQueueMutation({
-                                  variables: {
-                                      queueId,
-                                  },
-                              });
-                              closeQueueModal();
-                          }
+                            await removeQueueMutation({
+                                variables: {
+                                    queueId,
+                                },
+                            });
+                            closeQueueModal();
+                        }
                 }
             />
         </QueueContext.Provider>

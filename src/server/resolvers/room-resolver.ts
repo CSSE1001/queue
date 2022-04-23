@@ -11,7 +11,7 @@ import {
 import { Course, Room, WeeklyEvent } from "../entities";
 import { MyContext } from "../types/context";
 import { getCourseStaff } from "../utils/course-staff";
-import { getActiveRooms } from "../utils/rooms";
+import asyncFilter from "node-filter-async";
 
 @InputType()
 class EventInput {
@@ -47,7 +47,8 @@ class RoomInput {
 export class RoomResolver {
     @Query(() => [Room])
     async getActiveRooms(
-        @Arg("courseCode") courseCode: string
+        @Arg("courseCode") courseCode: string,
+        @Ctx() { req }: MyContext
     ): Promise<Room[]> {
         let course: Course;
         try {
@@ -65,7 +66,16 @@ export class RoomResolver {
             throw new Error("Cannot find course");
         }
         const rooms = await course.rooms;
-        return await getActiveRooms(rooms);
+        try {
+            // if user is staff, return all rooms
+            if (!req.user.isAdmin) {
+                await getCourseStaff(course.id, req.user.id);
+            }
+            return rooms;
+        } catch (e) {
+            // if user is not staff, return active rooms only
+            return await asyncFilter(rooms, (room) => room.isActive());
+        }
     }
 
     @Mutation(() => Room)

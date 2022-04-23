@@ -17,8 +17,8 @@ import { MyContext } from "../types/context";
 import { QuestionEvent, QuestionStatus } from "../types/question";
 import { QueueAction, QueueSortType, QueueTheme } from "../types/queue";
 import { getCourseStaff } from "../utils/course-staff";
-import { getActiveRooms } from "../utils/rooms";
 import { getRepository } from "typeorm";
+import asyncFilter from "node-filter-async";
 
 @InputType()
 class QueueInput {
@@ -166,7 +166,10 @@ export class QueueResolver {
         }
         // Checks if student is already on another queue
         const course = await (await queue.room).course;
-        const rooms = await getActiveRooms(await course.rooms);
+        const rooms = await asyncFilter(
+            await course.rooms,
+            async (room) => await room.isActive()
+        );
         const queuesWithStudent = await getRepository(Queue)
             .createQueryBuilder("queue")
             .innerJoinAndSelect("queue.room", "room")

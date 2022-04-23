@@ -156,6 +156,7 @@ export type Room = {
   activeTimes: Array<WeeklyEvent>;
   queues: Array<Queue>;
   course: Course;
+  isActive: Scalars['Boolean'];
 };
 
 export type WeeklyEvent = {
@@ -585,7 +586,7 @@ export type GetActiveRoomsQuery = (
   { __typename?: 'Query' }
   & { getActiveRooms: Array<(
     { __typename?: 'Room' }
-    & Pick<Room, 'id' | 'name'>
+    & Pick<Room, 'id' | 'name' | 'isActive'>
   )> }
 );
 
@@ -1281,6 +1282,7 @@ export const GetActiveRoomsDocument = gql`
   getActiveRooms(courseCode: $courseCode) {
     id
     name
+    isActive
   }
 }
     `;
