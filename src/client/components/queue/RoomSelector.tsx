@@ -2,12 +2,14 @@ import React from "react";
 import { Flex, FormLabel, Select } from "@chakra-ui/react";
 
 type Props = {
+    isStaff: boolean;
     selected: string;
     onSelect: (roomId: string) => void;
     rooms: [roomId: string, roomName: string, isActive: boolean][];
 };
 
 export const RoomSelector: React.FC<Props> = ({
+    isStaff,
     onSelect,
     rooms,
     selected,
@@ -27,7 +29,8 @@ export const RoomSelector: React.FC<Props> = ({
                 </option>
                 {rooms.map(([roomId, roomName, isActive]) => (
                     <option key={roomId} value={roomId}>
-                        {roomName} {!isActive && "(currently inactive)"}
+                        {(!isStaff || !isActive) && `${roomName}`}
+                        {isStaff && isActive && `${roomName} (active)`}
                     </option>
                 ))}
             </Select>

@@ -104,6 +104,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
     const {
         data: activeRoomsData,
         error: activeRoomsError,
+        loading: activeRoomsLoading,
     } = useQueryWithError(useGetActiveRoomsQuery, {
         variables: {
             courseCode,
@@ -112,14 +113,14 @@ export const CoursePageContainer: React.FC<Props> = () => {
         fetchPolicy: "cache-and-network",
         pollInterval: 30000,
     });
-    const [getRoomById, { data: roomData }] = useLazyQueryWithError(
-        useGetRoomByIdLazyQuery,
-        {
-            errorPolicy: "all",
-            pollInterval: 30000,
-            fetchPolicy: "cache-and-network",
-        }
-    );
+    const [
+        getRoomById,
+        { data: roomData, loading: getRoomLoading },
+    ] = useLazyQueryWithError(useGetRoomByIdLazyQuery, {
+        errorPolicy: "all",
+        pollInterval: 30000,
+        fetchPolicy: "cache-and-network",
+    });
     const [
         updateQueue,
         { data: updateQueueData },
@@ -426,13 +427,15 @@ export const CoursePageContainer: React.FC<Props> = () => {
                             });
                             setChosenRoomId(roomId);
                         }}
-                        rooms={
+                        isStaff={isStaff}
+                        rooms={sortBy(
                             activeRoomsData?.getActiveRooms.map((room) => [
                                 room.id,
                                 room.name,
                                 room.isActive,
-                            ]) || []
-                        }
+                            ]) || [],
+                            ([, name, isActive]) => [!isActive, name]
+                        )}
                     />
                     {isStaff && chosenRoomId !== "default" && (
                         <Button
@@ -464,38 +467,42 @@ export const CoursePageContainer: React.FC<Props> = () => {
                         />
                     </FormControl>
                 )}
-                {displayedQueues.length === 0 && chosenRoomId !== "default" && (
-                    <Alert
-                        status="info"
-                        variant="subtle"
-                        flexDirection="column"
-                        alignItems="center"
-                        justifyContent="center"
-                        textAlign="center"
-                        height="200px"
-                        mt={10}
-                        w="80%"
-                        mx="auto"
-                        borderRadius={5}
-                    >
-                        <AlertIcon boxSize="40px" mr={0} />
-                        <AlertTitle mt={4} mb={1} fontSize="lg">
-                            No queues found!
-                        </AlertTitle>
-                        <AlertDescription maxWidth="sm">
-                            It seems like this room doesn't have a queue yet.{" "}
-                            <br />
-                            {isStaff ? (
-                                <>
-                                    Click on the <strong>Add new queue</strong>{" "}
-                                    button to create your first queue.
-                                </>
-                            ) : (
-                                "Please contact the course staff if you think this is unexpected."
-                            )}
-                        </AlertDescription>
-                    </Alert>
-                )}
+                {displayedQueues.length === 0 &&
+                    chosenRoomId !== "default" &&
+                    !activeRoomsLoading &&
+                    !getRoomLoading && (
+                        <Alert
+                            status="info"
+                            variant="subtle"
+                            flexDirection="column"
+                            alignItems="center"
+                            justifyContent="center"
+                            textAlign="center"
+                            height="200px"
+                            mt={10}
+                            w="80%"
+                            mx="auto"
+                            borderRadius={5}
+                        >
+                            <AlertIcon boxSize="40px" mr={0} />
+                            <AlertTitle mt={4} mb={1} fontSize="lg">
+                                No queues found!
+                            </AlertTitle>
+                            <AlertDescription maxWidth="sm">
+                                It seems like this room doesn't have a queue
+                                yet. <br />
+                                {isStaff ? (
+                                    <>
+                                        Click on the{" "}
+                                        <strong>Add new queue</strong> button to
+                                        create your first queue.
+                                    </>
+                                ) : (
+                                    "Please contact the course staff if you think this is unexpected."
+                                )}
+                            </AlertDescription>
+                        </Alert>
+                    )}
                 <Flex
                     wrap="wrap"
                     mt={6}
