@@ -20,7 +20,7 @@ export const HomePageContainer: React.FC<Props> = () => {
     const history = useHistory();
     const [course, setCourse] = useState("");
     useEffect(() => {
-        document.title = "Q";
+        document.title = "(ueue)";
     }, []);
     const { name, username } = useContext(UserContext)!;
     return (

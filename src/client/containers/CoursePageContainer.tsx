@@ -313,7 +313,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
     }, [questionChangeData, updateQueueQuestion, user.username, toast]);
 
     useEffect(() => {
-        document.title = `${courseCode} Queue`;
+        document.title = `${courseCode}`;
     }, [courseCode]);
 
     useEffect(() => {
