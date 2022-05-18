@@ -23,6 +23,7 @@ import { UserResolver } from "./resolvers/user-resolver";
 import { QuestionResolver } from "./resolvers/question-resolver";
 import { CourseStaffResolver } from "./resolvers/course-staff-resolver";
 import { CourseUserMetaResolver } from "./resolvers/course-user-meta-resolver";
+import { getOrCreateUserFromHeaderData } from "./auth/getOrCreateUserFromHeaderData";
 
 const app: Express = express();
 const server = createServer(app);
@@ -71,8 +72,29 @@ const main = async () => {
         }),
         subscriptions: {
             path: "/subscriptions",
+            onConnect: (connectionParams, webSocket, context) => {
+                return {
+                    username: context.request.headers["x-uq-user"],
+                    kvd: context.request.headers["x-kvd-payload"],
+                };
+            },
         },
-        context: ({ req, res }): MyContext => ({ req, res }),
+        context: async ({ req, res, connection }): Promise<MyContext> => {
+            if (connection) {
+                // websocket connection
+                return {
+                    req: {
+                        ...req,
+                        user: await getOrCreateUserFromHeaderData(
+                            connection.context
+                        ),
+                    },
+                    res,
+                } as MyContext;
+            } else {
+                return { req, res };
+            }
+        },
     });
 
     apolloServer.applyMiddleware({ app });

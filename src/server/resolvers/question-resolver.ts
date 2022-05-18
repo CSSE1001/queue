@@ -245,7 +245,7 @@ export class QuestionResolver {
     })
     async questionChanges(
         @Arg("roomId") _: string,
-        @Root() questionId: string
+        @Root() questionId: string,
     ): Promise<Question> {
         return await Question.findOneOrFail(questionId);
     }
