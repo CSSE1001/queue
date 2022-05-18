@@ -72,7 +72,7 @@ const main = async () => {
         }),
         subscriptions: {
             path: "/subscriptions",
-            onConnect: (connectionParams, webSocket, context) => {
+            onConnect: (_, __, context) => {
                 return {
                     username: context.request.headers["x-uq-user"],
                     kvd: context.request.headers["x-kvd-payload"],
