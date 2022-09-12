@@ -6,6 +6,7 @@ import {
     FormLabel,
     IconButton,
     Input,
+    InputProps,
     Stack,
     StackProps,
 } from "@chakra-ui/react";
@@ -13,7 +14,7 @@ import { capitalCase } from "change-case";
 import { removeAtIndex, updateElementAtIndex } from "../../utils/array";
 import { AddIcon, MinusIcon } from "@chakra-ui/icons";
 
-type Props = {
+type Props = InputProps & {
     name: string;
     label?: string;
     formatValue?: (value: string) => string;
@@ -25,6 +26,7 @@ export const FormikInputGroup: React.FC<Props> = ({
     label,
     direction,
     formatValue,
+    ...inputProps
 }) => {
     const [, { value: values }, { setValue: setValues }] = useField<
         Array<string>
@@ -49,6 +51,7 @@ export const FormikInputGroup: React.FC<Props> = ({
                             id={`formik-input-group-${name}-${index}`}
                             size="sm"
                             width="50%"
+                            {...inputProps}
                         />
                         <IconButton
                             aria-label={`remove-queue-example-${index}`}
@@ -60,6 +63,7 @@ export const FormikInputGroup: React.FC<Props> = ({
                             onClick={() => {
                                 setValues(removeAtIndex(values, index));
                             }}
+                            isDisabled={inputProps.isReadOnly}
                         />
                     </Flex>
                 ))}
@@ -72,6 +76,7 @@ export const FormikInputGroup: React.FC<Props> = ({
                     setValues([...values, ""]);
                 }}
                 colorScheme="green"
+                isDisabled={inputProps.isReadOnly}
             />
         </FormControl>
     );

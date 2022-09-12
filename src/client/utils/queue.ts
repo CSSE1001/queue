@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import { QueueUtils } from "../types/queue";
 import { generateMailto } from "./mailto";
+import { QueueSortType } from "../generated/graphql";
 
 export const secondsToText = (seconds: number) => {
     if (seconds > 3600) {
@@ -59,3 +60,35 @@ export const QueueContext = createContext<QueueUtils>({
     openClaimModal: () => {},
     courseCode: "",
 });
+
+const TIME_SORT_EXPLANATION =
+    "This sort strategy is first-in-first-out. " +
+    "Students who have waited longer will have priority over students who " +
+    "joined the queue later.";
+
+const QUESTION_SORT_EXPLANATION =
+    "This sort strategy is not first-in-first-out. Students who have had fewer " +
+    "questions answered today will receive preference. This means you will " +
+    "see students who have asked fewer questions added to the queue before " +
+    "you, even after joining later. This strategy enables us to ensure that " +
+    "everyone can receive at least some help each day.";
+
+const QUESTION_TIME_SORT_EXPLANATION =
+    "This sort strategy is not first-in-first-out. Students who have had fewer " +
+    "questions answered today AND who have waited longer will receive " +
+    "preference. This means that if you have asked a few questions, you may " +
+    "see students who have asked fewer questions added to the queue before " +
+    "you, even after joining later. This strategy enables us to ensure that " +
+    "everyone can receive at least some help each day while keeping the wait " +
+    "time reasonable.";
+
+export const getSortTypeHelpText = (sortType: QueueSortType): string => {
+    switch (sortType) {
+        case QueueSortType.Questions:
+            return QUESTION_SORT_EXPLANATION;
+        case QueueSortType.Time:
+            return TIME_SORT_EXPLANATION;
+        case QueueSortType.QuestionsAndTime:
+            return QUESTION_TIME_SORT_EXPLANATION;
+    }
+};

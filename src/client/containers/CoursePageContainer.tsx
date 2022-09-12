@@ -171,7 +171,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
         },
         [askQuestionMutation]
     );
-    const editQueue = useCallback(
+    const viewQueueInfo = useCallback(
         (queueId: string) => {
             setChosenQueueId(queueId);
             setAddingNewQueue(false);
@@ -521,7 +521,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                             sessionFilter={sessionFilter}
                             askQuestion={askQuestion}
                             isStaff={isStaff}
-                            openEditQueueModal={editQueue}
+                            openQueueInfoModal={viewQueueInfo}
                             onUndo={(queueId) => {
                                 undoRemoveMutation({ variables: { queueId } });
                             }}
@@ -537,6 +537,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                 questionId={selectedQuestion}
             />
             <QueueModal
+                editable={isStaff}
                 {...(addingNewQueue
                     ? placeholderQueue
                     : queues.get(chosenQueueId) || placeholderQueue)}
@@ -588,7 +589,13 @@ export const CoursePageContainer: React.FC<Props> = () => {
                     }
                 }}
                 isOpen={isQueueModalOpen}
-                header={addingNewQueue ? "Add a new Queue" : "Edit Queue"}
+                header={
+                    isStaff
+                        ? addingNewQueue
+                            ? "Add a new Queue"
+                            : "Edit Queue"
+                        : "View Queue"
+                }
                 onRemove={
                     addingNewQueue
                         ? undefined

@@ -1,5 +1,6 @@
 import {
     Checkbox,
+    CheckboxProps,
     FormControl,
     FormLabel,
     Stack,
@@ -9,11 +10,12 @@ import React from "react";
 import { useField } from "formik";
 import { capitalCase } from "change-case";
 
-type Props<T extends number | string> = {
+type Props<T extends number | string> = CheckboxProps & {
     values: T[];
     name: string;
     transformValue?: (value: T) => string;
     direction?: StackProps["direction"];
+    showCheckedOnly?: boolean;
 };
 
 export const FormikCheckboxGroup = <T extends number | string>({
@@ -21,6 +23,8 @@ export const FormikCheckboxGroup = <T extends number | string>({
     name,
     transformValue,
     direction,
+    showCheckedOnly = false,
+    ...checkboxProps
 }: Props<T>) => {
     const [
         ,
@@ -31,25 +35,35 @@ export const FormikCheckboxGroup = <T extends number | string>({
         <FormControl mt={3}>
             <FormLabel>{capitalCase(name)}</FormLabel>
             <Stack spacing={2} direction={direction}>
-                {values.map((value, key) => (
-                    <Checkbox
-                        value={value}
-                        key={key}
-                        isChecked={checkedValues.includes(value)}
-                        onChange={(e) => {
-                            e.target.checked
-                                ? setCheckedValues([...checkedValues, value])
-                                : setCheckedValues(
-                                      checkedValues.filter(
-                                          (checkedValue) =>
-                                              checkedValue !== value
-                                      )
-                                  );
-                        }}
-                    >
-                        {transformValue?.(value) || capitalCase(String(value))}
-                    </Checkbox>
-                ))}
+                {values
+                    .filter(
+                        (value) =>
+                            !showCheckedOnly || checkedValues.includes(value)
+                    )
+                    .map((value, key) => (
+                        <Checkbox
+                            value={value}
+                            key={key}
+                            isChecked={checkedValues.includes(value)}
+                            onChange={(e) => {
+                                e.target.checked
+                                    ? setCheckedValues([
+                                          ...checkedValues,
+                                          value,
+                                      ])
+                                    : setCheckedValues(
+                                          checkedValues.filter(
+                                              (checkedValue) =>
+                                                  checkedValue !== value
+                                          )
+                                      );
+                            }}
+                            {...checkboxProps}
+                        >
+                            {transformValue?.(value) ||
+                                capitalCase(String(value))}
+                        </Checkbox>
+                    ))}
             </Stack>
         </FormControl>
     );

@@ -13,15 +13,11 @@ import {
 import { Form, Formik } from "formik";
 import { FormikInput } from "../helpers/FormikInput";
 import { FormikCheckboxGroup } from "../helpers/FormikCheckboxGroup";
-import {
-    QueueAction,
-    QueueSortType,
-    QueueTheme,
-} from "../../generated/graphql";
+import { QueueAction, QueueTheme } from "../../generated/graphql";
 import { FormikRadioGroup } from "../helpers/FormikRadioGroup";
-import { FormikSelect } from "../helpers/FormikSelect";
 import { FormikInputGroup } from "../helpers/FormikInputGroup";
 import { FormikCheckbox } from "../helpers/FormikCheckbox";
+import { QuestionSortTypeSelect } from "../../containers/QuestionSortTypeSelect";
 
 type Props = Omit<QueueProps, "createdAt"> & {
     header: string;
@@ -29,6 +25,7 @@ type Props = Omit<QueueProps, "createdAt"> & {
     isOpen: boolean;
     onSubmit: (queue: Omit<QueueProps, "createdAt">) => void;
     onRemove?: (queueId: string) => void;
+    editable: boolean;
 };
 
 export const QueueModal: React.FC<Props> = ({
@@ -46,6 +43,7 @@ export const QueueModal: React.FC<Props> = ({
     header,
     showEnrolledSession,
     onRemove,
+    editable,
 }) => {
     return (
         <Modal
@@ -74,7 +72,11 @@ export const QueueModal: React.FC<Props> = ({
                         <ModalHeader>{header}</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody>
-                            <FormikInput name="name" />
+                            <FormikInput
+                                name="name"
+                                isReadOnly={!editable}
+                                isDisabled={!editable}
+                            />
                             <FormikCheckboxGroup
                                 values={[
                                     QueueAction.Accept,
@@ -85,6 +87,9 @@ export const QueueModal: React.FC<Props> = ({
                                 ]}
                                 name="actions"
                                 direction="row"
+                                isReadOnly={!editable}
+                                isDisabled={!editable}
+                                showCheckedOnly={!editable}
                             />
                             <FormikRadioGroup
                                 name="theme"
@@ -101,53 +106,61 @@ export const QueueModal: React.FC<Props> = ({
                                     QueueTheme.Gray,
                                 ]}
                                 stackDirection="column"
+                                isReadOnly={!editable}
+                                isDisabled={!editable}
+                                showCheckedOnly={!editable}
                             />
-                            <FormikInput name="shortDescription" />
-                            <FormikSelect
-                                name="sortType"
-                                options={[
-                                    QueueSortType.Time,
-                                    QueueSortType.Questions,
-                                    QueueSortType.QuestionsAndTime,
-                                ]}
+                            <FormikInput
+                                name="shortDescription"
+                                isReadOnly={!editable}
+                                isDisabled={!editable}
                             />
+                            <QuestionSortTypeSelect editable={editable} />
                             <FormikInputGroup
                                 name="examples"
                                 label="Question Examples"
+                                isReadOnly={!editable}
+                                isDisabled={!editable}
                             />
                             <FormikCheckbox
                                 name="clearAfterMidnight"
                                 label="Clear after Midnight?"
+                                isReadOnly={!editable}
+                                isDisabled={!editable}
                             />
                             <FormikCheckbox
                                 name="showEnrolledSession"
                                 label="Show Student's Enrolled Session?"
+                                isReadOnly={!editable}
+                                isDisabled={!editable}
                             />
                         </ModalBody>
 
-                        <ModalFooter>
-                            <Button mr={3} variant="ghost" onClick={close}>
-                                Cancel
-                            </Button>
-                            <Button
-                                mr={3}
-                                colorScheme="blue"
-                                type="submit"
-                                onClick={close}
-                            >
-                                Save
-                            </Button>
-                            {onRemove && (
-                                <Button
-                                    colorScheme="red"
-                                    onClick={() => {
-                                        onRemove(id);
-                                    }}
-                                >
-                                    Remove
+                        {editable && (
+                            <ModalFooter>
+                                <Button mr={3} variant="ghost" onClick={close}>
+                                    Cancel
                                 </Button>
-                            )}
-                        </ModalFooter>
+                                <Button
+                                    mr={3}
+                                    colorScheme="blue"
+                                    type="submit"
+                                    onClick={close}
+                                >
+                                    Save
+                                </Button>
+                                {onRemove && (
+                                    <Button
+                                        colorScheme="red"
+                                        onClick={() => {
+                                            onRemove(id);
+                                        }}
+                                    >
+                                        Remove
+                                    </Button>
+                                )}
+                            </ModalFooter>
+                        )}
                     </ModalContent>
                 </Form>
             </Formik>

@@ -3,6 +3,7 @@ import {
     Button,
     Center,
     Flex,
+    HStack,
     IconButton,
     ListItem,
     Stack,
@@ -25,7 +26,7 @@ import {
 import { QuestionProps } from "../../containers/QuestionContainer";
 import { QuestionList } from "./QuestionList";
 import { capitalCase, noCase } from "change-case";
-import { EditIcon } from "@chakra-ui/icons";
+import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
 import { IoArrowUndo } from "react-icons/io5";
 
 export type QueueProps = {
@@ -47,7 +48,7 @@ export type Props = QueueProps & {
     askQuestion: (queueId: string) => void;
     onUndo: (queueId: string) => void;
     isStaff: boolean;
-    openEditQueueModal: (queueId: string) => void;
+    openQueueInfoModal: (queueId: string) => void;
     index: number;
     queuesNum: number;
 };
@@ -63,7 +64,7 @@ export const Queue: React.FC<Props> = ({
     questions,
     askQuestion,
     isStaff,
-    openEditQueueModal,
+    openQueueInfoModal,
     showEnrolledSession,
     sessionFilter,
     onUndo,
@@ -87,31 +88,31 @@ export const Queue: React.FC<Props> = ({
                 borderColor={queueTextColour}
                 position="relative"
             >
-                {isStaff && (
-                    <IconButton
-                        aria-label={`edit-queue-${id}`}
-                        icon={<EditIcon />}
-                        variant="ghost"
-                        colorScheme={noCase(theme)}
-                        onClick={() => {
-                            openEditQueueModal(id);
-                        }}
-                        position="absolute"
-                        top={0}
-                        right={0}
-                        isRound
-                    />
-                )}
+                <IconButton
+                    aria-label={`${isStaff ? "edit" : "view"}-queue-${id}`}
+                    icon={isStaff ? <EditIcon /> : <QuestionIcon />}
+                    variant="ghost"
+                    colorScheme={noCase(theme)}
+                    onClick={() => {
+                        openQueueInfoModal(id);
+                    }}
+                    position="absolute"
+                    top={0}
+                    right={0}
+                    isRound
+                />
                 <Stack alignItems="center">
-                    <Text fontSize="4xl" color={queueTextColour}>
-                        {name}
-                    </Text>
+                    <HStack>
+                        <Text fontSize="4xl" color={queueTextColour}>
+                            {name}
+                        </Text>
+                    </HStack>
                     <Text fontSize="xl" color={descriptionColour}>
                         {shortDescription}
                     </Text>
                 </Stack>
             </Box>
-            <Text>Some examples of {capitalCase(name)} Queue questions:</Text>
+            <Text>Some examples of {capitalCase(name)} questions:</Text>
             <UnorderedList stylePosition="inside">
                 {examples.map((example, key) => (
                     <ListItem key={key}>{example}</ListItem>
@@ -130,12 +131,12 @@ export const Queue: React.FC<Props> = ({
             {isStaff && (
                 <Flex justifyItems="flex-end">
                     <Tooltip
-                        label="Undo close most recent question"
-                        aria-label="Undo most recent question tooltip"
+                        label="Undo last removal"
+                        aria-label="Undo last removal tooltip"
                     >
                         <IconButton
                             icon={<IoArrowUndo />}
-                            aria-label={`Undo ${name} queue`}
+                            aria-label={`Undo last ${name} queue removal`}
                             isRound
                             ml="auto"
                             variant="ghost"

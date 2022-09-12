@@ -1,8 +1,13 @@
 import React from "react";
-import { Checkbox, FormControl, FormLabel } from "@chakra-ui/react";
+import {
+    Checkbox,
+    CheckboxProps,
+    FormControl,
+    FormLabel,
+} from "@chakra-ui/react";
 import { useField } from "formik";
 
-type Props = {
+type Props = CheckboxProps & {
     name: string;
     label: string;
     displayedValues?: [string, string];
@@ -12,6 +17,7 @@ export const FormikCheckbox: React.FC<Props> = ({
     name,
     label,
     displayedValues,
+    ...checkboxProps
 }) => {
     const [, { value }, { setValue }] = useField<boolean>(name);
     return (
@@ -20,6 +26,7 @@ export const FormikCheckbox: React.FC<Props> = ({
             <Checkbox
                 isChecked={value}
                 onChange={(e) => setValue(e.target.checked)}
+                {...checkboxProps}
             >
                 {(displayedValues || ["No", "Yes"])[+value]}
             </Checkbox>
