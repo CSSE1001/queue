@@ -70,16 +70,11 @@ export const Queue: React.FC<Props> = ({
     onUndo,
     queuesNum,
 }) => {
-    const [isSmallerThan540] = useMediaQuery("(max-width: 540px)");
     const queueBgColour = useQueueBgColour(theme);
     const queueTextColour = useQueueTextColour(theme);
     const descriptionColour = useColorModeValue("gray.600", "gray.300");
     return (
-        <Stack
-            spacing={2}
-            w={isSmallerThan540 ? "90%" : queuesNum === 1 ? "80%" : "47%"}
-            mt={4}
-        >
+        <Stack spacing={2}>
             <Box
                 bg={queueBgColour}
                 borderRadius={5}

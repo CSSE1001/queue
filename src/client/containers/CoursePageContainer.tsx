@@ -38,6 +38,7 @@ import {
     Flex,
     FormControl,
     FormLabel,
+    Grid,
     Input,
     Text,
     useDisclosure,
@@ -56,6 +57,7 @@ import { QueueModal } from "../components/queue/QueueModal";
 import { pushNotification, QueueContext } from "../utils/queue";
 import sortBy from "lodash/sortBy";
 import { redacted } from "../../constants";
+import { NoQueueAlert } from "../components/queue/NoQueueAlert";
 
 type Props = {};
 
@@ -77,7 +79,6 @@ const placeholderQueue: QueueProps = {
 };
 
 export const CoursePageContainer: React.FC<Props> = () => {
-    const [isSmallerThan540] = useMediaQuery("(max-width: 540px)");
     const {
         isOpen: isClaimModalOpen,
         onOpen: openClaimModal,
@@ -470,44 +471,11 @@ export const CoursePageContainer: React.FC<Props> = () => {
                 {displayedQueues.length === 0 &&
                     chosenRoomId !== "default" &&
                     !activeRoomsLoading &&
-                    !getRoomLoading && (
-                        <Alert
-                            status="info"
-                            variant="subtle"
-                            flexDirection="column"
-                            alignItems="center"
-                            justifyContent="center"
-                            textAlign="center"
-                            height="200px"
-                            mt={10}
-                            w="80%"
-                            mx="auto"
-                            borderRadius={5}
-                        >
-                            <AlertIcon boxSize="40px" mr={0} />
-                            <AlertTitle mt={4} mb={1} fontSize="lg">
-                                No queues found!
-                            </AlertTitle>
-                            <AlertDescription maxWidth="sm">
-                                It seems like this room doesn't have a queue
-                                yet. <br />
-                                {isStaff ? (
-                                    <>
-                                        Click on the{" "}
-                                        <strong>Add new queue</strong> button to
-                                        create your first queue.
-                                    </>
-                                ) : (
-                                    "Please contact the course staff if you think this is unexpected."
-                                )}
-                            </AlertDescription>
-                        </Alert>
-                    )}
-                <Flex
-                    wrap="wrap"
+                    !getRoomLoading && <NoQueueAlert isStaff={isStaff} />}
+                <Grid
                     mt={6}
-                    justifyContent="space-around"
-                    direction={isSmallerThan540 ? "column" : "row"}
+                    templateColumns="repeat(auto-fit, minmax(500px, 1fr))"
+                    gap={10}
                 >
                     {sortBy(displayedQueues, (queueId) => {
                         return queues.get(queueId)?.createdAt || new Date();
@@ -529,7 +497,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                             queuesNum={displayedQueues.length}
                         />
                     ))}
-                </Flex>
+                </Grid>
             </Container>
             <ClaimModal
                 isOpen={isClaimModalOpen}
