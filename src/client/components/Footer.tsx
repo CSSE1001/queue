@@ -27,13 +27,13 @@ export const Footer: React.FunctionComponent<Props> = () => {
                     </Box>
                     <HStack divider={<StackDivider />}>
                         <Link
-                            href="https://github.com/CSSE1001/queue/issues/new?assignees=&labels=&template=bug_report.md&title="
+                            href="https://github.com/UQTools/queue/issues/new?assignees=&labels=&template=bug_report.md&title="
                             isExternal
                         >
                             Bug report
                         </Link>
                         <Link
-                            href="https://github.com/CSSE1001/queue/issues/new?assignees=&labels=&template=feature_request.md&title="
+                            href="https://github.com/UQTools/queue/issues/new?assignees=&labels=&template=feature_request.md&title="
                             isExternal
                         >
                             Feature request
