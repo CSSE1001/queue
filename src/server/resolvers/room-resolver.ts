@@ -12,6 +12,8 @@ import { Course, Room, WeeklyEvent } from "../entities";
 import { MyContext } from "../types/context";
 import { getCourseStaff } from "../utils/course-staff";
 import asyncFilter from "node-filter-async";
+import { StaffRole } from "../types/course-staff";
+import { permissionDeniedMsg } from "../../constants";
 
 @InputType()
 class EventInput {
@@ -35,9 +37,6 @@ class RoomInput {
 
     @Field()
     enforceCapacity: boolean;
-
-    @Field()
-    manuallyDisabled: boolean;
 
     @Field(() => [EventInput])
     activeTimes: EventInput[];
@@ -98,12 +97,11 @@ export class RoomResolver {
             );
         }
         const savedEvents = await WeeklyEvent.save(newEvents);
-        const { name, capacity, enforceCapacity, manuallyDisabled } = roomInput;
+        const { name, capacity, enforceCapacity } = roomInput;
         const newRoom = Room.create({
             name,
             capacity,
             enforceCapacity,
-            manuallyDisabled,
             courseId,
         });
         newRoom.activeTimes = savedEvents;
@@ -135,11 +133,10 @@ export class RoomResolver {
             newEvents.push(WeeklyEvent.create(activeTime));
         }
         const savedEvents = await WeeklyEvent.save(newEvents);
-        const { name, capacity, enforceCapacity, manuallyDisabled } = roomInput;
+        const { name, capacity, enforceCapacity } = roomInput;
         room.name = name;
         room.capacity = capacity;
         room.enforceCapacity = enforceCapacity;
-        room.manuallyDisabled = manuallyDisabled;
         room.activeTimes = savedEvents;
         return await room.save();
     }
@@ -163,7 +160,13 @@ export class RoomResolver {
             throw new Error("Cannot find room");
         }
         if (!req.user.isAdmin) {
-            await getCourseStaff(room.courseId, req.user.id);
+            const courseStaff = await getCourseStaff(
+                room.courseId,
+                req.user.id
+            );
+            if (courseStaff.role !== StaffRole.COORDINATOR) {
+                throw new Error(permissionDeniedMsg);
+            }
         }
         try {
             await Room.remove(room);
@@ -173,5 +176,23 @@ export class RoomResolver {
             );
         }
         return roomId;
+    }
+
+    @Mutation(() => Room)
+    async archiveRoom(
+        @Arg("roomId") roomId: string,
+        @Arg("archive") archive: boolean,
+        @Ctx() { req }: MyContext
+    ): Promise<Room> {
+        const room = await Room.findOne(roomId);
+        if (!room) {
+            throw new Error("Cannot find room");
+        }
+        if (!req.user.isAdmin) {
+            await getCourseStaff(room.courseId, req.user.id);
+        }
+        room.archived = archive;
+        await room.save();
+        return room;
     }
 }

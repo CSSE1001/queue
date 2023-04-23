@@ -3,6 +3,7 @@ query GetActiveRooms($courseCode: String!) {
         id
         name
         isActive
+        archived
     }
 }
 
@@ -47,7 +48,7 @@ mutation UpdateRoom($roomId: String!, $roomInput: RoomInput!) {
         name
         capacity
         enforceCapacity
-        manuallyDisabled
+        archived
         activeTimes {
             startTime
             endTime
@@ -62,7 +63,7 @@ mutation AddRoom($courseId: String!, $roomInput: RoomInput!) {
         name
         capacity
         enforceCapacity
-        manuallyDisabled
+        archived
         activeTimes {
             startTime
             endTime
@@ -73,4 +74,19 @@ mutation AddRoom($courseId: String!, $roomInput: RoomInput!) {
 
 mutation DeleteRoom($roomId: String!) {
     deleteRoom(roomId: $roomId)
+}
+
+mutation ArchiveRoom($roomId: String!, $archive: Boolean!) {
+    archiveRoom(archive: $archive, roomId: $roomId) {
+        id
+        name
+        capacity
+        enforceCapacity
+        archived
+        activeTimes {
+            startTime
+            endTime
+            day
+        }
+    }
 }

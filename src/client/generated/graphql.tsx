@@ -152,7 +152,7 @@ export type Room = {
   name: Scalars['String'];
   capacity: Scalars['Int'];
   enforceCapacity: Scalars['Boolean'];
-  manuallyDisabled: Scalars['Boolean'];
+  archived: Scalars['Boolean'];
   activeTimes: Array<WeeklyEvent>;
   queues: Array<Queue>;
   course: Course;
@@ -188,6 +188,7 @@ export type Mutation = {
   createRoom: Room;
   updateRoom: Room;
   deleteRoom: Scalars['String'];
+  archiveRoom: Room;
   askQuestion: Question;
   updateQuestionStatus: Question;
   addStaff: Array<CourseStaff>;
@@ -245,6 +246,12 @@ export type MutationDeleteRoomArgs = {
 };
 
 
+export type MutationArchiveRoomArgs = {
+  archive: Scalars['Boolean'];
+  roomId: Scalars['String'];
+};
+
+
 export type MutationAskQuestionArgs = {
   queueId: Scalars['String'];
 };
@@ -295,7 +302,6 @@ export type RoomInput = {
   name: Scalars['String'];
   capacity: Scalars['Int'];
   enforceCapacity: Scalars['Boolean'];
-  manuallyDisabled: Scalars['Boolean'];
   activeTimes: Array<EventInput>;
 };
 
@@ -434,7 +440,7 @@ export type MeQuery = (
         & Pick<Course, 'id' | 'code' | 'title'>
         & { rooms: Array<(
           { __typename?: 'Room' }
-          & Pick<Room, 'id' | 'name' | 'capacity' | 'enforceCapacity' | 'manuallyDisabled'>
+          & Pick<Room, 'id' | 'name' | 'capacity' | 'enforceCapacity' | 'archived'>
           & { activeTimes: Array<(
             { __typename?: 'WeeklyEvent' }
             & Pick<WeeklyEvent, 'startTime' | 'endTime' | 'day'>
@@ -586,7 +592,7 @@ export type GetActiveRoomsQuery = (
   { __typename?: 'Query' }
   & { getActiveRooms: Array<(
     { __typename?: 'Room' }
-    & Pick<Room, 'id' | 'name' | 'isActive'>
+    & Pick<Room, 'id' | 'name' | 'isActive' | 'archived'>
   )> }
 );
 
@@ -628,7 +634,7 @@ export type UpdateRoomMutation = (
   { __typename?: 'Mutation' }
   & { updateRoom: (
     { __typename?: 'Room' }
-    & Pick<Room, 'id' | 'name' | 'capacity' | 'enforceCapacity' | 'manuallyDisabled'>
+    & Pick<Room, 'id' | 'name' | 'capacity' | 'enforceCapacity' | 'archived'>
     & { activeTimes: Array<(
       { __typename?: 'WeeklyEvent' }
       & Pick<WeeklyEvent, 'startTime' | 'endTime' | 'day'>
@@ -646,7 +652,7 @@ export type AddRoomMutation = (
   { __typename?: 'Mutation' }
   & { createRoom: (
     { __typename?: 'Room' }
-    & Pick<Room, 'id' | 'name' | 'capacity' | 'enforceCapacity' | 'manuallyDisabled'>
+    & Pick<Room, 'id' | 'name' | 'capacity' | 'enforceCapacity' | 'archived'>
     & { activeTimes: Array<(
       { __typename?: 'WeeklyEvent' }
       & Pick<WeeklyEvent, 'startTime' | 'endTime' | 'day'>
@@ -662,6 +668,24 @@ export type DeleteRoomMutationVariables = Exact<{
 export type DeleteRoomMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'deleteRoom'>
+);
+
+export type ArchiveRoomMutationVariables = Exact<{
+  roomId: Scalars['String'];
+  archive: Scalars['Boolean'];
+}>;
+
+
+export type ArchiveRoomMutation = (
+  { __typename?: 'Mutation' }
+  & { archiveRoom: (
+    { __typename?: 'Room' }
+    & Pick<Room, 'id' | 'name' | 'capacity' | 'enforceCapacity' | 'archived'>
+    & { activeTimes: Array<(
+      { __typename?: 'WeeklyEvent' }
+      & Pick<WeeklyEvent, 'startTime' | 'endTime' | 'day'>
+    )> }
+  ) }
 );
 
 
@@ -928,7 +952,7 @@ export const MeDocument = gql`
           name
           capacity
           enforceCapacity
-          manuallyDisabled
+          archived
           activeTimes {
             startTime
             endTime
@@ -1283,6 +1307,7 @@ export const GetActiveRoomsDocument = gql`
     id
     name
     isActive
+    archived
   }
 }
     `;
@@ -1381,7 +1406,7 @@ export const UpdateRoomDocument = gql`
     name
     capacity
     enforceCapacity
-    manuallyDisabled
+    archived
     activeTimes {
       startTime
       endTime
@@ -1423,7 +1448,7 @@ export const AddRoomDocument = gql`
     name
     capacity
     enforceCapacity
-    manuallyDisabled
+    archived
     activeTimes {
       startTime
       endTime
@@ -1488,3 +1513,45 @@ export function useDeleteRoomMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeleteRoomMutationHookResult = ReturnType<typeof useDeleteRoomMutation>;
 export type DeleteRoomMutationResult = Apollo.MutationResult<DeleteRoomMutation>;
 export type DeleteRoomMutationOptions = Apollo.BaseMutationOptions<DeleteRoomMutation, DeleteRoomMutationVariables>;
+export const ArchiveRoomDocument = gql`
+    mutation ArchiveRoom($roomId: String!, $archive: Boolean!) {
+  archiveRoom(archive: $archive, roomId: $roomId) {
+    id
+    name
+    capacity
+    enforceCapacity
+    archived
+    activeTimes {
+      startTime
+      endTime
+      day
+    }
+  }
+}
+    `;
+export type ArchiveRoomMutationFn = Apollo.MutationFunction<ArchiveRoomMutation, ArchiveRoomMutationVariables>;
+
+/**
+ * __useArchiveRoomMutation__
+ *
+ * To run a mutation, you first call `useArchiveRoomMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useArchiveRoomMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [archiveRoomMutation, { data, loading, error }] = useArchiveRoomMutation({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *      archive: // value for 'archive'
+ *   },
+ * });
+ */
+export function useArchiveRoomMutation(baseOptions?: Apollo.MutationHookOptions<ArchiveRoomMutation, ArchiveRoomMutationVariables>) {
+        return Apollo.useMutation<ArchiveRoomMutation, ArchiveRoomMutationVariables>(ArchiveRoomDocument, baseOptions);
+      }
+export type ArchiveRoomMutationHookResult = ReturnType<typeof useArchiveRoomMutation>;
+export type ArchiveRoomMutationResult = Apollo.MutationResult<ArchiveRoomMutation>;
+export type ArchiveRoomMutationOptions = Apollo.BaseMutationOptions<ArchiveRoomMutation, ArchiveRoomMutationVariables>;

@@ -5,7 +5,12 @@ type Props = {
     isStaff: boolean;
     selected: string;
     onSelect: (roomId: string) => void;
-    rooms: [roomId: string, roomName: string, isActive: boolean][];
+    rooms: [
+        roomId: string,
+        roomName: string,
+        isActive: boolean,
+        archived: boolean
+    ][];
 };
 
 export const RoomSelector: React.FC<Props> = ({
@@ -27,10 +32,14 @@ export const RoomSelector: React.FC<Props> = ({
                 <option value="default" disabled>
                     Choose an option
                 </option>
-                {rooms.map(([roomId, roomName, isActive]) => (
+                {rooms.map(([roomId, roomName, isActive, archived]) => (
                     <option key={roomId} value={roomId}>
-                        {(!isStaff || !isActive) && `${roomName}`}
-                        {isStaff && isActive && `${roomName} (active)`}
+                        {(!isStaff || (isActive && !archived)) && `${roomName}`}
+                        {isStaff && archived && `${roomName} (archived)`}
+                        {isStaff &&
+                            !archived &&
+                            !isActive &&
+                            `${roomName} (inactive)`}
                     </option>
                 ))}
             </Select>

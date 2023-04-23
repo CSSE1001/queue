@@ -38,6 +38,10 @@ export class QuestionResolver {
             await course.rooms,
             async (room) => await room.isActive()
         );
+        const room = await queue.room;
+        if (!(await room.isActive())) {
+            throw new Error("You cannot ask question in an inactive room.");
+        }
         const existingQueues = await getRepository(Queue)
             .createQueryBuilder("queue")
             .innerJoinAndSelect("queue.room", "room")
@@ -46,7 +50,7 @@ export class QuestionResolver {
             .innerJoinAndSelect("question.op", "user")
             .where("user.id = :userId", { userId: req.user.id })
             .andWhere("course.id = :courseId", { courseId: course.id })
-            .andWhere("room.id IN (:...roomIds)", {
+            .andWhere("room.id = ANY (ARRAY[:...roomIds]::uuid[])", {
                 roomIds: rooms.map((room) => room.id),
             })
             .andWhere("question.status NOT IN (:...ended)", {
@@ -60,7 +64,6 @@ export class QuestionResolver {
                 `You are already on the queue "${queueWithStudent.name}" in room ${roomWithStudent.name} of ${course.code}`
             );
         }
-        const room = await queue.room;
         if (room.enforceCapacity) {
             const existingQuestions = await (await room.queues).reduce<
                 Promise<Question[]>
@@ -80,6 +83,7 @@ export class QuestionResolver {
                 throw new Error("This room is already full");
             }
         }
+        console.log(5);
         const question = await Question.create({
             opId: req.user.id,
             queueId: queue.id,
@@ -97,6 +101,7 @@ export class QuestionResolver {
                 questionsAsked: 0,
             }).save();
         }
+        console.log(6);
         await publish(question.id);
         return question;
     }

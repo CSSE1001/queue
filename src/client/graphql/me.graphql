@@ -14,7 +14,7 @@ query Me {
                     name
                     capacity
                     enforceCapacity
-                    manuallyDisabled
+                    archived
                     activeTimes {
                         startTime
                         endTime

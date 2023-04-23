@@ -33,8 +33,8 @@ export class Room extends BaseEntity {
     enforceCapacity: boolean;
 
     @Field()
-    @Column()
-    manuallyDisabled: boolean;
+    @Column({ default: false })
+    archived: boolean;
 
     @Field(() => [WeeklyEvent])
     @OneToMany(() => WeeklyEvent, (weeklyEvent) => weeklyEvent.room, {
@@ -60,7 +60,7 @@ export class Room extends BaseEntity {
     @Field(() => Boolean)
     async isActive(): Promise<boolean> {
         const today = new Date();
-        if (this.manuallyDisabled) {
+        if (this.archived) {
             return false;
         }
         const events = await this.activeTimes;

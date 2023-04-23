@@ -30,10 +30,6 @@ import {
     useUpdateQueueMutation,
 } from "../generated/graphql";
 import {
-    Alert,
-    AlertDescription,
-    AlertIcon,
-    AlertTitle,
     Button,
     Flex,
     FormControl,
@@ -42,7 +38,6 @@ import {
     Input,
     Text,
     useDisclosure,
-    useMediaQuery,
     useToast,
 } from "@chakra-ui/react";
 import { QuestionProps } from "./QuestionContainer";
@@ -434,6 +429,7 @@ export const CoursePageContainer: React.FC<Props> = () => {
                                 room.id,
                                 room.name,
                                 room.isActive,
+                                room.archived,
                             ]) || [],
                             ([, name, isActive]) => [!isActive, name]
                         )}

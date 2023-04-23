@@ -10,11 +10,13 @@ import { UserContext } from "../utils/user";
 import { Map } from "immutable";
 import {
     RoomInput,
+    Room as GraphQLRoom,
     StaffRole,
-    UpdateRoomMutation,
     useAddRoomMutation,
     useDeleteRoomMutation,
     useUpdateRoomMutation,
+    WeeklyEvent,
+    useArchiveRoomMutation,
 } from "../generated/graphql";
 import { Form, Formik } from "formik";
 import {
@@ -38,12 +40,20 @@ import { RoomDeleteAlert } from "../components/room/RoomDeleteAlert";
 
 type Props = {};
 
-const placeholderRoom: RoomInput = {
+const placeholderRoom: Room = {
+    id: "",
     name: "",
     capacity: 0,
     enforceCapacity: false,
-    manuallyDisabled: false,
     activeTimes: [],
+    archived: false,
+};
+
+type Room = Pick<
+    GraphQLRoom,
+    "id" | "name" | "capacity" | "enforceCapacity" | "archived"
+> & {
+    activeTimes: Pick<WeeklyEvent, "startTime" | "endTime" | "day">[];
 };
 
 export const RoomPageContainer: React.FC<Props> = () => {
@@ -58,8 +68,17 @@ export const RoomPageContainer: React.FC<Props> = () => {
         onOpen: openDeleteAlert,
     } = useDisclosure();
     const [courses, setCourses] = useState<
-        Map<string, { [key: string]: RoomInput }>
+        Map<string, { [key: string]: Room }>
     >(Map());
+    const isCoordinator = useMemo(
+        () =>
+            user.getCourseStaff.some(
+                (courseStaff) =>
+                    courseStaff.role === StaffRole.Coordinator &&
+                    courseStaff.course.id === chosenCourse
+            ),
+        [user.getCourseStaff, chosenCourse]
+    );
     const toast = useToast();
     const [
         updateRoomMutation,
@@ -73,6 +92,10 @@ export const RoomPageContainer: React.FC<Props> = () => {
         deleteRoomMutation,
         { data: deleteRoomMutationData, loading: deleteRoomMutationLoading },
     ] = useMutationWithError(useDeleteRoomMutation, { errorPolicy: "all" });
+    const [
+        archiveRoomMutation,
+        { data: archiveRoomMutationData, loading: archiveRoomMutationLoading },
+    ] = useMutationWithError(useArchiveRoomMutation, { errorPolicy: "all" });
     useEffect(() => {
         document.title = "Manage Rooms";
     }, []);
@@ -82,15 +105,16 @@ export const RoomPageContainer: React.FC<Props> = () => {
         setChosenRoom("");
     }, [chosenCourse]);
     const updateRoom = useCallback(
-        (room: UpdateRoomMutation["updateRoom"]) => {
+        (room: Room) => {
             setCourses((prev) =>
                 prev.set(chosenCourse, {
                     ...prev.get(chosenCourse),
                     [room.id]: {
+                        id: room.id,
                         name: room.name,
                         capacity: room.capacity,
                         enforceCapacity: room.enforceCapacity,
-                        manuallyDisabled: room.manuallyDisabled,
+                        archived: room.archived,
                         activeTimes: room.activeTimes,
                     },
                 })
@@ -128,6 +152,12 @@ export const RoomPageContainer: React.FC<Props> = () => {
         updateRoom(updatedRoom);
     }, [updateRoomMutationData, updateRoom]);
     useEffect(() => {
+        if (!archiveRoomMutationData) {
+            return;
+        }
+        updateRoom(archiveRoomMutationData.archiveRoom);
+    }, [archiveRoomMutationData, updateRoom]);
+    useEffect(() => {
         if (!addRoomMutationData) {
             return;
         }
@@ -150,16 +180,17 @@ export const RoomPageContainer: React.FC<Props> = () => {
                 prev.set(
                     courseStaff.course.id,
                     courseStaff.course.rooms.reduce<{
-                        [key: string]: RoomInput;
+                        [key: string]: Room;
                     }>(
                         (prevValue, currentRoom) => ({
                             ...prevValue,
                             [currentRoom.id]: {
+                                id: currentRoom.id,
                                 name: currentRoom.name,
                                 capacity: currentRoom.capacity,
                                 enforceCapacity: currentRoom.enforceCapacity,
-                                manuallyDisabled: currentRoom.manuallyDisabled,
                                 activeTimes: currentRoom.activeTimes,
+                                archived: currentRoom.archived,
                             },
                         }),
                         {}
@@ -168,7 +199,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
             );
         });
     }, [user]);
-    const room = useMemo<RoomInput>(() => {
+    const room = useMemo<Room>(() => {
         if (isAdding) {
             return placeholderRoom;
         } else {
@@ -250,10 +281,6 @@ export const RoomPageContainer: React.FC<Props> = () => {
                                     label="Enforce Capacity:"
                                     name="enforceCapacity"
                                 />
-                                <FormikCheckbox
-                                    label="Disabled:"
-                                    name="manuallyDisabled"
-                                />
                                 <FormikActiveTimeInput
                                     name="activeTimes"
                                     label="Weekly Active Times"
@@ -270,6 +297,35 @@ export const RoomPageContainer: React.FC<Props> = () => {
                                         Save
                                     </Button>
                                     {!isAdding && (
+                                        <Button
+                                            isLoading={
+                                                archiveRoomMutationLoading
+                                            }
+                                            colorScheme={
+                                                room.archived
+                                                    ? "green"
+                                                    : "orange"
+                                            }
+                                            variant={
+                                                !room.archived
+                                                    ? "solid"
+                                                    : "outline"
+                                            }
+                                            onClick={() =>
+                                                archiveRoomMutation({
+                                                    variables: {
+                                                        roomId: chosenRoom,
+                                                        archive: !room.archived,
+                                                    },
+                                                })
+                                            }
+                                        >
+                                            {room.archived
+                                                ? "Restore"
+                                                : "Archive"}
+                                        </Button>
+                                    )}
+                                    {!isAdding && isCoordinator && (
                                         <Button
                                             colorScheme="red"
                                             isLoading={
