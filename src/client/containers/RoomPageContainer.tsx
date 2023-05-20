@@ -40,13 +40,11 @@ import { RoomDeleteAlert } from "../components/room/RoomDeleteAlert";
 
 type Props = {};
 
-const placeholderRoom: Room = {
-    id: "",
+const placeholderRoom: RoomInput = {
     name: "",
     capacity: 0,
     enforceCapacity: false,
     activeTimes: [],
-    archived: false,
 };
 
 type Room = Pick<
@@ -58,7 +56,7 @@ type Room = Pick<
 
 export const RoomPageContainer: React.FC<Props> = () => {
     const user = useContext(UserContext)!;
-    const [chosenRoom, setChosenRoom] = useState("");
+    const [chosenRoomId, setChosenRoomId] = useState("");
     const [chosenCourse, setChosenCourse] = useState("");
     const [showing, setShowing] = useState<boolean>(false);
     const [isAdding, setIsAdding] = useState<boolean>(false);
@@ -102,7 +100,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
     useEffect(() => {
         setShowing(false);
         setIsAdding(false);
-        setChosenRoom("");
+        setChosenRoomId("");
     }, [chosenCourse]);
     const updateRoom = useCallback(
         (room: Room) => {
@@ -141,7 +139,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
         });
         setShowing(false);
         setIsAdding(false);
-        setChosenRoom("");
+        setChosenRoomId("");
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deleteRoomMutationData, chosenCourse]);
     useEffect(() => {
@@ -164,7 +162,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
         const newRoom = addRoomMutationData.createRoom;
         updateRoom(newRoom);
         setIsAdding(false);
-        setChosenRoom("");
+        setChosenRoomId("");
         setShowing(false);
         toast({
             title: "Room created",
@@ -199,13 +197,9 @@ export const RoomPageContainer: React.FC<Props> = () => {
             );
         });
     }, [user]);
-    const room = useMemo<Room>(() => {
-        if (isAdding) {
-            return placeholderRoom;
-        } else {
-            return courses.get(chosenCourse)?.[chosenRoom] || placeholderRoom;
-        }
-    }, [courses, chosenCourse, chosenRoom, isAdding]);
+    const chosenRoom = useMemo<Room | undefined>(() => {
+        return courses.get(chosenCourse)?.[chosenRoomId];
+    }, [courses, chosenCourse, chosenRoomId]);
     return (
         <>
             <Container>
@@ -219,9 +213,9 @@ export const RoomPageContainer: React.FC<Props> = () => {
                         <FormControl mt={3}>
                             <FormLabel>Choose room:</FormLabel>
                             <Select
-                                value={chosenRoom}
+                                value={chosenRoomId}
                                 onChange={(e) => {
-                                    setChosenRoom(e.target.value);
+                                    setChosenRoomId(e.target.value);
                                     setShowing(true);
                                     setIsAdding(false);
                                 }}
@@ -244,7 +238,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
                             onClick={() => {
                                 setIsAdding(true);
                                 setShowing(true);
-                                setChosenRoom("");
+                                setChosenRoomId("");
                             }}
                         >
                             Add Room
@@ -252,7 +246,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
                     </>
                 )}
                 <Formik<RoomInput>
-                    initialValues={room}
+                    initialValues={placeholderRoom}
                     onSubmit={(values) => {
                         if (isAdding) {
                             addRoomMutation({
@@ -264,7 +258,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
                         } else {
                             updateRoomMutation({
                                 variables: {
-                                    roomId: chosenRoom,
+                                    roomId: chosenRoomId,
                                     roomInput: values,
                                 },
                             });
@@ -302,25 +296,26 @@ export const RoomPageContainer: React.FC<Props> = () => {
                                                 archiveRoomMutationLoading
                                             }
                                             colorScheme={
-                                                room.archived
+                                                chosenRoom?.archived === true
                                                     ? "green"
                                                     : "orange"
                                             }
                                             variant={
-                                                !room.archived
+                                                chosenRoom?.archived === false
                                                     ? "solid"
                                                     : "outline"
                                             }
                                             onClick={() =>
                                                 archiveRoomMutation({
                                                     variables: {
-                                                        roomId: chosenRoom,
-                                                        archive: !room.archived,
+                                                        roomId: chosenRoomId,
+                                                        archive: !chosenRoom!
+                                                            .archived,
                                                     },
                                                 })
                                             }
                                         >
-                                            {room.archived
+                                            {chosenRoom?.archived
                                                 ? "Restore"
                                                 : "Archive"}
                                         </Button>
@@ -348,7 +343,7 @@ export const RoomPageContainer: React.FC<Props> = () => {
                 submit={() => {
                     deleteRoomMutation({
                         variables: {
-                            roomId: chosenRoom,
+                            roomId: chosenRoomId,
                         },
                     });
                 }}
